@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Churn Prediction</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Poppins, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      width: 520px;
+      border-radius: 20px;
+      color: white;
+      animation: slideUp 1s ease;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 12px;
+      animation: fadeIn 0.8s ease;
+    }
+
+    .safe { background: rgba(46,204,113,0.85); }
+    .danger { background: rgba(231,76,60,0.85); }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>Customer Churn Prediction</h1>
+
+  <div class="grid">
+    <input id="gender" placeholder="gender (0/1)">
+    <input id="SeniorCitizen" placeholder="SeniorCitizen (0/1)">
+    <input id="Partner" placeholder="Partner (0/1)">
+    <input id="Dependents" placeholder="Dependents (0/1)">
+    <input id="tenure" placeholder="tenure">
+    <input id="PhoneService" placeholder="PhoneService (0/1)">
+    <input id="MultipleLines" placeholder="MultipleLines (0/1)">
+    <input id="InternetService" placeholder="InternetService (0/1/2)">
+    <input id="OnlineSecurity" placeholder="OnlineSecurity (0/1)">
+    <input id="OnlineBackup" placeholder="OnlineBackup (0/1/2)">
+    <input id="DeviceProtection" placeholder="DeviceProtection (0/1)">
+    <input id="TechSupport" placeholder="TechSupport (0/1)">
+    <input id="StreamingTV" placeholder="StreamingTV (0/1)">
+    <input id="StreamingMovies" placeholder="StreamingMovies (0/1)">
+    <input id="Contract" placeholder="Contract (0/1/2)">
+    <input id="PaperlessBilling" placeholder="PaperlessBilling (0/1)">
+    <input id="PaymentMethod" placeholder="PaymentMethod (0/1/2)">
+    <input id="MonthlyCharges" placeholder="MonthlyCharges">
+    <input id="TotalCharges" placeholder="TotalCharges">
+  </div>
+
+  <button onclick="predict()">Predict Churn</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+function getVal(id) {
+  return document.getElementById(id).value;
+}
+
+async function predict() {
+  const data = {
+    gender: getVal("gender"),
+    SeniorCitizen: getVal("SeniorCitizen"),
+    Partner: getVal("Partner"),
+    Dependents: getVal("Dependents"),
+    tenure: Number(getVal("tenure")),
+    PhoneService: getVal("PhoneService"),
+    MultipleLines: getVal("MultipleLines"),
+    InternetService: getVal("InternetService"),
+    OnlineSecurity: getVal("OnlineSecurity"),
+    OnlineBackup: getVal("OnlineBackup"),
+    DeviceProtection: getVal("DeviceProtection"),
+    TechSupport: getVal("TechSupport"),
+    StreamingTV: getVal("StreamingTV"),
+    StreamingMovies: getVal("StreamingMovies"),
+    Contract: getVal("Contract"),
+    PaperlessBilling: getVal("PaperlessBilling"),
+    PaymentMethod: getVal("PaymentMethod"),
+    MonthlyCharges: Number(getVal("MonthlyCharges")),
+    TotalCharges: Number(getVal("TotalCharges"))
+  };
+
+  const res = await fetch("/predict", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  const result = await res.json();
+  const div = document.getElementById("result");
+
+  div.innerHTML = `
+    <div class="result ${result.churn ? "danger" : "safe"}">
+      <h3>${result.churn ? "⚠ WILL CHURN" : "✅ WILL NOT CHURN"}</h3>
+      <p>Probability: ${result.probability}</p>
+    </div>
+  `;
+}
+</script>
+
+</body>
+</html>
